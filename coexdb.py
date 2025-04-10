@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import networkx as nx
 import argparse
+import scipy.sparse as sp
 
 
 class CoexDB(object):
@@ -84,10 +85,11 @@ def main():
     """
 
     args = argparse.ArgumentParser(description="Parse CoExDB, write network")
-    args.add_argument("--coexdb_root", help="path to coexdb root dir")
-    args.add_argument("--threshold", help="threshold for coexpression",
+    args.add_argument("coexdb_root", help="path to coexdb root dir")
+    args.add_argument("threshold", help="threshold for coexpression",
                       type=float)
-    args.add_argument("--output", help="the output file")
+    args.add_argument("output_network", help="the output file")
+    args.add_argument("output_nodes", help="the output file")
     args = args.parse_args()
 
     # coexdb_root = "Sce-r.v21-11.G5718-S6225.combat_pca.subagging.ls.d/"
@@ -95,8 +97,6 @@ def main():
     coexdb_root = args.coexdb_root
     threshold = args.threshold
     assert 0 <= threshold <= 1
-
-    output = args.output
 
     coexdb = CoexDB(coexdb_root)
     G = coexdb.get_network(threshold, genes_subset=None)
@@ -109,7 +109,12 @@ def main():
     print("no. nodes:", G.number_of_nodes())
     print("no. edges:", G.number_of_edges())
 
-    nx.write_edgelist(G, output)
+    A = nx.to_scipy_sparse_array(G, nodelist=G.nodes(), format='csr')
+    sp.save_npz(args.output_network, A)
+
+    with open(args.output_nodes, 'w') as f:
+        for node in G.nodes():
+            f.write(f"{node}\n")
 
 
 if __name__ == "__main__":

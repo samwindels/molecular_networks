@@ -1,6 +1,6 @@
-import networkx as nx
 import argparse
 import scipy.sparse as sp
+import networkx as nx
 
 
 class BioGRID():
@@ -95,7 +95,8 @@ def main():
     args.add_argument("tax_id", help="tax id of the organism")
     args.add_argument("interaction_type", help="type of interaction",
                       choices=['PPI', 'GI'], default='PPI')
-    args.add_argument("output", help="the output file")
+    args.add_argument("output_network", help="the output file")
+    args.add_argument("output_nodes", help="the output file for nodes")
     args = args.parse_args()
 
     assert "tab2" in args.biogrid_fp
@@ -106,7 +107,6 @@ def main():
     biogrid_fp = args.biogrid_fp
     tax_id = args.tax_id
     interaction_type = args.interaction_type
-    output = args.output
 
     match args.interaction_type:
         case "PPI":
@@ -123,8 +123,12 @@ def main():
     assert nx.number_of_selfloops(G) == 0
 
     # nx.write_edgelist(G, output, data=False)
-    A = nx.to_scipy_sparse_matrix(G, nodelist=G.nodes(), format='csr')
-    sp.save_npz(output, A)
+    A = nx.to_scipy_sparse_array(G, nodelist=G.nodes(), format='csr')
+    sp.save_npz(args.output_network, A)
+
+    with open(args.output_nodes, 'w') as f:
+        for node in G.nodes():
+            f.write(f"{node}\n")
 
 
 if __name__ == "__main__":
