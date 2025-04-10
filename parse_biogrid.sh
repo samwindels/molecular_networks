@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 
+# data: https://downloads.thebiogrid.org/BioGRID
+# current release -> BIOGRID-ALL-<version>.tab2.zip
+# important: biogrid.py only works for tab2 format
+
 python biogrid.py "data/biogrid/BIOGRID-ORGANISM-Homo_sapiens-4.4.244.tab2.txt" 9606 PPI output/PPI-Human.npz output/PPI-Human-nodes.txt
 
 python biogrid.py "data/biogrid/BIOGRID-ORGANISM-Homo_sapiens-4.4.244.tab2.txt" 9606 GI output/GI-Human.npz output/GI-Human-nodes.txt
